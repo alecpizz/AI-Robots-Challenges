@@ -2,7 +2,6 @@ from controller import Robot
 from controller import Motor
 import math
 
-
 # High level functions
 def move_forward(): 
     left_motor.setVelocity(max_speed)
@@ -32,7 +31,10 @@ if __name__ == "__main__":
     
     #Variables
     time_step = 64
-    max_speed = .35
+    max_speed = .25
+    magic_turn_num = 4.87
+    turn_step_size =  math.floor(time_step * magic_turn_num * (1 + max_speed))
+    print(turn_step_size)
 
     #Set up motor/track wheels
     left_motor = robot.getDevice("leftMotor")
@@ -43,8 +45,40 @@ if __name__ == "__main__":
     reset_motors()
     
     #Robot AI goes here **************
-    move_forward()
-    robot.step(time_step)
+    i = 0
+    while i < 4:
+        move_forward()
+        robot.step(time_step * 8)
+        turn_right()
+        robot.step(turn_step_size)
+        i = i + 1
+    
+    i = 0
+    while i < 4:
+        move_back()
+        robot.step(time_step * 8)
+        turn_right()
+        robot.step( turn_step_size)
+        i = i + 1
+        
+
+    # move_forward()
+    # robot.step(time_step * 8)
+    # turn_right()
+    # robot.step( math.floor(time_step * magic_turn_num * max_speed))
+    # move_forward()
+    # robot.step(time_step * 8)
+    # turn_right()
+    # robot.step( math.floor(time_step * magic_turn_num * max_speed))
+    # move_forward()
+    # robot.step(time_step * 8)
+    # turn_right()
+    # robot.step( math.floor(time_step * magic_turn_num * max_speed))
+    # move_forward()
+    # robot.step(time_step * 8)
+    # turn_right()
+    # robot.step( math.floor(time_step * magic_turn_num * max_speed))
+    
     
     #End of AI
     

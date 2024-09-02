@@ -67,6 +67,7 @@ if __name__ == "__main__":
     #Set up camera and camera motor
     camera = robot.getDevice("CameraArm_camera")
     camera.enable(time_step)
+    camera.recognitionEnable(time_step)
     width = camera.getWidth()
     height = camera.getWidth()
     
@@ -86,8 +87,23 @@ if __name__ == "__main__":
         red = camera.imageGetRed(camera.getImage(), int(width), int(width / 2), int(height / 2))
         green = camera.imageGetGreen(camera.getImage(), int(width), int(width / 2), int(height / 2))
         blue = camera.imageGetBlue(camera.getImage(), int(width), int(width / 2), int(height / 2))
-        print("Red: " + str(red) + ", Green: " + str(green) + ", Blue: " + str(blue))
-        
+        # print("Red: " + str(red) + ", Green: " + str(green) + ", Blue: " + str(blue))
+        size = len(camera.getRecognitionObjects())
+        if(size <= 0):
+            drive_forward(45)
+            continue
+        for x in camera.getRecognitionObjects():
+            colors = x.getColors()
+            if colors[0] > .68 and colors[1] > 0.54 and colors[2] > 0.49:
+                print("look a wall")
+                break
+            elif colors[0] < 0.1 and colors[1] > 0.62 and colors[2] > 0.93:
+                print("look a ball")
+                drive_forward(-45)
+                break
+            else:
+                reset_motors()
+                break
         pass #end of code region
                 
     #End of AI

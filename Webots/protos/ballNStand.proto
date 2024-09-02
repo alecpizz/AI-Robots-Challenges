@@ -31,6 +31,9 @@ PROTO ballNStand[
 				damping Damping {
 				}
 			  }
+			  recognitionColors [
+      			           0 0.639 0.941
+			  ]
 			}
 			Solid {
 			  translation 0 0 0
@@ -121,6 +124,9 @@ PROTO ballNStand[
 				damping Damping {
 				}
 			  }
+			  recognitionColors [
+			        0.7, 0.56, 0.5
+			  ]
 			}
 		]
 	}

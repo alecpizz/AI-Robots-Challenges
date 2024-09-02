@@ -5,14 +5,14 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Parquetry.proto"
 EXTERNPROTO "../protos/Hollow_Box.proto"
-EXTERNPROTO "../protos/BallNStand.proto"
 EXTERNPROTO "../protos/Evil_Duck.proto"
+EXTERNPROTO "../protos/ballNStand.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.2333925604794196 -0.869936124561405 -0.4344410798899479 5.0828675895590605
-  position -0.9561391365940323 -0.6459936246519592 1.8908087287545523
+  orientation 0.21923949780510102 -0.3523120000752229 -0.9098408087160981 4.983223767817983
+  position -1.0438435798958674 -1.9958016544182655 1.1355571302897647
 }
 Robot {
   translation 0.1 0 0.1
@@ -139,11 +139,22 @@ DEF Random_0 Robot {
                     boundingObject Box {
                       size 0.044 0.013 0.013
                     }
+                    recognitionColors [
+                      0.756863 0.615686 0.541176
+                      0 0.639216 0.941176
+                    ]
                   }
                   Camera {
                     name "CameraArm_camera"
                     boundingObject Box {
                       size 0.003 0.025 0.025
+                    }
+                    recognitionColors [
+                      0 0.639216 0.941176
+                      0.756863 0.615686 0.541176
+                    ]
+                    recognition Recognition {
+                      segmentation TRUE
                     }
                   }
                   Shape {
@@ -908,6 +919,7 @@ DEF Random_0 Robot {
   physics Physics {
   }
   controller "third_challenge_controller"
+  customData "False"
 }
 DEF Random_1 Hollow_Box {
   translation 0 0.15 0.05
@@ -917,13 +929,13 @@ DEF Random_2 Hollow_Box {
   translation 0 -0.15 0.05
   name "box 2"
 }
-DEF Random_3 BallNStand {
+DEF Random_3 ballNStand {
   translation -0.125 0.125 0.01
 }
-DEF Random_4 BallNStand {
+DEF Random_4 ballNStand {
   translation 0 0 0.01
 }
-DEF Random_5 BallNStand {
+DEF Random_5 ballNStand {
   translation -0.125 -0.125 0.01
 }
 DEF Random_6 Evil_Duck {

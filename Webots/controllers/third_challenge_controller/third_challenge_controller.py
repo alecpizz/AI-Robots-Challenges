@@ -31,6 +31,18 @@ def drive_forward(angle, inRadians = False):
     else:
         left_motor.setVelocity(max_speed * math.sin((-angle + 45) / 28.648) )
         right_motor.setVelocity(max_speed)
+        
+def drive_backward(angle, inRadians = False):
+    if inRadians: 
+        angle *= 57.295   #//180/3.14 = 57
+    if angle > 90 or angle < -90:
+        pass
+    elif angle >= 0:
+        left_motor.setVelocity(-max_speed)
+        right_motor.setVelocity( -max_speed * math.sin((angle + 45) / 28.648) )
+    else:
+        left_motor.setVelocity(-max_speed * math.sin((-angle + 45) / 28.648) )
+        right_motor.setVelocity(-max_speed)
 
 def set_camera_position(rotation):
     camera_motor.setPosition(rotation)
@@ -75,36 +87,73 @@ if __name__ == "__main__":
     camera_motor = robot.getDevice("CameraArm_rotational_motor")
     camera_motor.maxPosition = camera_max_position
     camera_motor.minPosition = camera_min_position
+    set_camera_position(camera_min_position)
 
     #Set random duck placement (change to 'True' or 'False')
     robot.custom_data = 'False'
     
+    drive_forward(-35)
+    robot.step(time_step * 8)
+    drive_forward(0)
+    robot.step(time_step * 12)
+    drive_forward(75)
+    robot.step(time_step * 6)
+    max_speed = .35
+    move_forward()
+    robot.step(int(time_step * 19))
+    
+    
+    move_back()
+    robot.step(int(time_step * 18))
+    max_speed = 0.5 
+    drive_backward(75)
+    robot.step(time_step * 6)
+    drive_backward(0)
+    robot.step(time_step * 12)
+    drive_forward(70)
+    robot.step(time_step * 8)
+    drive_forward(0)
+    robot.step(time_step * 12)
+    drive_forward(-70)
+    robot.step(time_step * 5)
+    turn_left()
+    robot.step(2)
+    drive_forward(0)
+    robot.step(time_step * 12)
+    turn_left()
+    robot.step(2)
+    drive_forward(0)
+    robot.step(time_step * 3)
+    turn_left()
+    robot.step(time_step)
+    drive_forward(0)
+    robot.step(time_step)
     #Main Loop while simulation is running
-    while robot.step(time_step) != -1:
+    # while robot.step(time_step) != -1:
         #Code goes here
         
         #RGB Values for debugging center pixel
-        red = camera.imageGetRed(camera.getImage(), int(width), int(width / 2), int(height / 2))
-        green = camera.imageGetGreen(camera.getImage(), int(width), int(width / 2), int(height / 2))
-        blue = camera.imageGetBlue(camera.getImage(), int(width), int(width / 2), int(height / 2))
+        # red = camera.imageGetRed(camera.getImage(), int(width), int(width / 2), int(height / 2))
+        # green = camera.imageGetGreen(camera.getImage(), int(width), int(width / 2), int(height / 2))
+        # blue = camera.imageGetBlue(camera.getImage(), int(width), int(width / 2), int(height / 2))
         # print("Red: " + str(red) + ", Green: " + str(green) + ", Blue: " + str(blue))
-        size = len(camera.getRecognitionObjects())
-        if(size <= 0):
-            drive_forward(45)
-            continue
-        for x in camera.getRecognitionObjects():
-            colors = x.getColors()
-            if colors[0] > .68 and colors[1] > 0.54 and colors[2] > 0.49:
-                print("look a wall")
-                break
-            elif colors[0] < 0.1 and colors[1] > 0.62 and colors[2] > 0.93:
-                print("look a ball")
-                drive_forward(-45)
-                break
-            else:
-                reset_motors()
-                break
-        pass #end of code region
+        # size = len(camera.getRecognitionObjects())
+        # if(size <= 0):
+            # drive_forward(0)
+            # continue
+        # for x in camera.getRecognitionObjects():
+            # colors = x.getColors()
+            # if colors[0] > .68 and colors[1] > 0.54 and colors[2] > 0.49:
+                # print("look a wall")
+                # break
+            # elif colors[0] < 0.1 and colors[1] > 0.62 and colors[2] > 0.93:
+                # print("look a ball")
+                # drive_forward(-45)
+                # break
+            # else:
+                # reset_motors()
+                # break
+    pass #end of code region
                 
     #End of AI
     reset_motors()

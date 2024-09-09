@@ -5,8 +5,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Parquetry.proto"
 EXTERNPROTO "../protos/Hollow_Box.proto"
-EXTERNPROTO "../protos/BallNStand.proto"
 EXTERNPROTO "../protos/Evil_Duck.proto"
+EXTERNPROTO "../protos/BallNStand.proto"
 
 WorldInfo {
 }
@@ -229,7 +229,7 @@ DEF Random_0 Robot {
               children [
                 DEF Front1_TrackWheel TrackWheel {
                   position 0.0335 0
-                  rotation 0.9462359760524895 0.228732478311477 -0.22873331849444678 1.626035181438544
+                  rotation 0.38742768118958065 -0.6518806140666394 0.6518830085622463 2.4023523085611025
                   radius 0.03
                   children [
                     DEF Decal_Cylinder Shape {
@@ -256,7 +256,7 @@ DEF Random_0 Robot {
                 }
                 DEF Back1_TrackWheel TrackWheel {
                   position -0.03 0
-                  rotation 0.9462359760524895 0.228732478311477 -0.22873331849444678 1.626035181438544
+                  rotation 0.38742768118958065 -0.6518806140666394 0.6518830085622463 2.4023523085611025
                   radius 0.03
                   children [
                     DEF Decal_Cylinder Shape {
@@ -331,7 +331,7 @@ DEF Random_0 Robot {
               children [
                 DEF Front1_TrackWheel TrackWheel {
                   position 0.0335 0
-                  rotation 0.21645420887798011 -0.69034197118253 0.6903445069549164 2.7152627687010367
+                  rotation 0.5145533720063833 -0.6063135025251263 0.606315729643042 2.1911508309286316
                   radius 0.03
                   children [
                     DEF Decal_Cylinder Shape {
@@ -358,7 +358,7 @@ DEF Random_0 Robot {
                 }
                 DEF Back1_TrackWheel TrackWheel {
                   position -0.03 0
-                  rotation 0.21645420887798011 -0.69034197118253 0.6903445069549164 2.7152627687010367
+                  rotation 0.5145533720063833 -0.6063135025251263 0.606315729643042 2.1911508309286316
                   radius 0.03
                   children [
                     DEF Decal_Cylinder Shape {
@@ -907,7 +907,8 @@ DEF Random_0 Robot {
   }
   physics Physics {
   }
-  controller "second_challenge_controller"
+  controller "second_challenge_control"
+  customData "False"
 }
 DEF Random_1 Hollow_Box {
   translation 0 0.15 0.05
@@ -917,13 +918,13 @@ DEF Random_2 Hollow_Box {
   translation 0 -0.15 0.05
   name "box 2"
 }
-DEF Random_3 BallNStand {
+DEF Random_3 ballNStand {
   translation -0.125 0.11 0.01
 }
-DEF Random_4 BallNStand {
+DEF Random_4 ballNStand {
   translation -0.125 0 0.01
 }
-DEF Random_5 BallNStand {
+DEF Random_5 ballNStand {
   translation -0.1254 -0.11 0.01
 }
 DEF Random_6 Evil_Duck {

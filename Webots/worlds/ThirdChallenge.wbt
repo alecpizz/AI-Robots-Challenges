@@ -11,8 +11,8 @@ EXTERNPROTO "../protos/ballNStand.proto"
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.21923949780510102 -0.3523120000752229 -0.9098408087160981 4.983223767817983
-  position -1.0438435798958674 -1.9958016544182655 1.1355571302897647
+  orientation 0.18980892156234644 -0.6226219479278494 -0.7591537942036973 5.410095931038937
+  position -0.9506970940761486 -0.728733590404899 0.5518045045995992
 }
 Robot {
   translation 0.1 0 0.1
@@ -918,7 +918,7 @@ DEF Random_0 Robot {
   }
   physics Physics {
   }
-  controller "third_challenge_controller"
+  controller "third_challenge_control"
   customData "False"
 }
 DEF Random_1 Hollow_Box {

@@ -3,13 +3,13 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/boston_dynamics/spot/protos/Spot.proto"
+EXTERNPROTO "../protos/Spot.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.22546327465602048 0.11808936584191468 0.9670683602809257 2.1705928172778446
-  position 2.909064659752401 -4.040494121886387 2.423197228877631
+  orientation -0.19206759068622373 0.1853191824964007 0.9637255009632437 2.158579291507813
+  position 1.489212374454513 -2.2910734629783187 1.2402610759318542
 }
 TexturedBackground {
 }
@@ -19,4 +19,5 @@ RectangleArena {
   floorSize 3 3
 }
 Spot {
+  controller "spot_controller"
 }

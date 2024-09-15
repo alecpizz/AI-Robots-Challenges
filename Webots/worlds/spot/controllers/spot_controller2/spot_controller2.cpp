@@ -40,6 +40,13 @@ static void lie_down(double duration);
 static void stand_up(double duration);
 static void sit_down(double duration);
 static void left_forward(double duration);
+static void right_forward(double duration);
+static void left_backward(double duration);
+static void right_backward(double duration);
+static void move_forward(double duration);
+static void move_backward(double duration);
+static void turn_left(double duration);
+static void turn_right(double duration);
 static void give_paw();
 static void step();
 
@@ -69,19 +76,25 @@ int main(int argc, char** argv) {
 	// enable the two front cameras
 
 	// Get the LEDs and turn them on
-	for (int i = 0; i < NUMBER_OF_LEDS; ++i) 
+	for (int i = 0; i < NUMBER_OF_LEDS; ++i)
 	{
 		leds[i] = robot->getLED(led_names[i]);
 		leds[i]->set(1);
 	}
 
 	// Get the motors (joints) and set initial target position to 0
-	for (int i = 0; i < NUMBER_OF_JOINTS; ++i) 
+	for (int i = 0; i < NUMBER_OF_JOINTS; ++i)
 	{
 		motors[i] = robot->getMotor(motor_names[i]);
 	}
 
-	left_forward(0.5);
+	//while (true)
+	//{
+	//	//move_forward(1.0);
+	//	//move_forward(1.0);
+	//	move_backward(1.0);
+	//	//move_backward(1.0);
+	//}
 	/*	lie_down(4.0);
 		stand_up(4.0);
 		sit_down(4.0);
@@ -97,21 +110,21 @@ int main(int argc, char** argv) {
 		stand_up(0.75);
 		lie_down(0.5);
 		stand_up(0.5);*/
-	
-
-	// get the time step of the current world
-
-	// You should insert a getDevice-like function in order to get the
-	// instance of a device of the robot. Something like:
-	//  Motor *motor = robot->getMotor("motorname");
-	//  DistanceSensor *ds = robot->getDistanceSensor("dsname");
-	//  ds->enable(timeStep);
-
-	// Main loop:
-	// - perform simulation steps until Webots is stopping the controller
 
 
-	// Enter here exit cleanup code.
+		// get the time step of the current world
+
+		// You should insert a getDevice-like function in order to get the
+		// instance of a device of the robot. Something like:
+		//  Motor *motor = robot->getMotor("motorname");
+		//  DistanceSensor *ds = robot->getDistanceSensor("dsname");
+		//  ds->enable(timeStep);
+
+		// Main loop:
+		// - perform simulation steps until Webots is stopping the controller
+
+
+		// Enter here exit cleanup code.
 
 	delete robot;
 	return 0;
@@ -124,15 +137,15 @@ void movement_decomposition(const double* target, double duration)
 	double step_difference[NUMBER_OF_JOINTS];
 	double current_position[NUMBER_OF_JOINTS];
 
-	for (int i = 0; i < NUMBER_OF_JOINTS; ++i) 
+	for (int i = 0; i < NUMBER_OF_JOINTS; ++i)
 	{
 		current_position[i] = motors[i]->getTargetPosition();
 		step_difference[i] = (target[i] - current_position[i]) / n_steps_to_achieve_target;
 	}
 
-	for (int i = 0; i < n_steps_to_achieve_target; ++i) 
+	for (int i = 0; i < n_steps_to_achieve_target; ++i)
 	{
-		for (int j = 0; j < NUMBER_OF_JOINTS; ++j) 
+		for (int j = 0; j < NUMBER_OF_JOINTS; ++j)
 		{
 			current_position[j] += step_difference[j];
 			motors[j]->setPosition(current_position[j]);
@@ -172,13 +185,68 @@ void sit_down(double duration)
 
 void left_forward(double duration)
 {
-	const double motors_target_pos[NUMBER_OF_JOINTS] = {
-		0.00, 1.00, -0.45, //front left leg
-		0.10, 0.00, 0.00, //front right leg
-		0.00, 0.00, 0.00, //rear left leg
-		0.0, 1.35, -0.45 //rear right leg
-	};
+	const double motors_target_pos[NUMBER_OF_JOINTS] = { 
+		0, 0.25, 0.0,   // Front left leg
+		0,  0.0, 0.0,   // Front right leg
+		0, 0.25, 0.0,   // Rear left leg
+		0,  0.0, 0.0 };  // Rear right leg
 	movement_decomposition(motors_target_pos, duration);
+}
+
+void right_forward(double duration)
+{
+	const double motors_target_pos[NUMBER_OF_JOINTS] = {
+		0, 0.00, 0.0,   // Front left leg
+		0,  0.25, 0.0,   // Front right leg
+		0, 0.00, 0.0,   // Rear left leg
+		0,  0.25, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos, duration);
+}
+
+void left_backward(double duration)
+{
+	const double motors_target_pos[NUMBER_OF_JOINTS] = {
+		0, -0.25, 0.0,   // Front left leg
+		0,  0.0, 0.0,   // Front right leg
+		0, -0.25, 0.0,   // Rear left leg
+		0,  0.0, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos, duration);
+}
+
+void right_backward(double duration)
+{
+	const double motors_target_pos[NUMBER_OF_JOINTS] = {
+		0, 0.00, 0.0,   // Front left leg
+		0,  -0.25, 0.0,   // Front right leg
+		0, 0.00, 0.0,   // Rear left leg
+		0,  -0.25, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos, duration);
+}
+
+void move_forward(double duration)
+{
+	left_forward(duration * 0.5);
+	right_forward(duration * 0.5);
+}
+
+void move_backward(double duration)
+{
+	left_backward(duration * 0.5);
+	right_backward(duration * 0.5);
+}
+
+void turn_left(double duration)
+{
+	const double motors_target_pos[NUMBER_OF_JOINTS] = {
+		0.25, 0.25, 0.0,   // Front left leg
+		0,  0.0, 0.0,   // Front right leg
+		0, 0.0, 0.0,   // Rear left leg
+		0.25,  0.25, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos, duration);
+}
+
+void turn_right(double duration)
+{
 }
 
 void give_paw()
@@ -191,7 +259,7 @@ void give_paw()
 	movement_decomposition(motors_target_pos_1, 4);
 
 	const double initial_time = robot->getTime();
-	while (robot->getTime() - initial_time < 8) 
+	while (robot->getTime() - initial_time < 8)
 	{
 		motors[4]->setPosition(0.2 * sin(2 * robot->getTime() + 0.6));
 		motors[5]->setPosition(0.4 * sin(2 * robot->getTime()));

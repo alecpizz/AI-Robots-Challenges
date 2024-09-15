@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B2AA53B0-6416-4406-8FF5-6D43BBA8B305}</ProjectGuid>
-    <RootNamespace>spot_controller</RootNamespace>
+    <RootNamespace>spot_controller2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\alecp\AppData\Local\Programs\Webots\include\controller\cpp;$(WEBOTS_HOME)/include/controller/c;$(WEBOTS_HOME)/include/controller/cpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WEBOTS_HOME)/include/controller/c;$(WEBOTS_HOME)/include/controller/cpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -134,9 +134,7 @@
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\GPS.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Gyro.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\InertialUnit.cpp" />
-    <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Joystick.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\alecp\AppData\Local\Programs\Webots\src\controller\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
+    <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Joystick.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Keyboard.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\LED.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Lidar.cpp" />
@@ -156,7 +154,7 @@
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Supervisor.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\TouchSensor.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\VacuumGripper.cpp" />
-    <ClCompile Include="spot_controller.cpp" />
+    <ClCompile Include="spot_controller2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -19,5 +19,5 @@ RectangleArena {
   floorSize 3 3
 }
 Spot {
-  controller "spot_controller"
+  controller "spot_controller2"
 }

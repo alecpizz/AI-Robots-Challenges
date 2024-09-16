@@ -13,7 +13,7 @@
 #include <webots/LED.hpp>
 #include <webots/Motor.hpp>
 #include <webots/Robot.hpp>
-
+#include <webots/Keyboard.hpp>
 
 #define NUMBER_OF_LEDS 8
 #define NUMBER_OF_JOINTS 12
@@ -64,8 +64,10 @@ Robot* robot = nullptr;
 int main(int argc, char** argv) {
 	// create the Robot instance.
 	robot = new Robot();
+	Keyboard* keyboard = new Keyboard();
 
 	int time_step = (int)robot->getBasicTimeStep();
+	keyboard->enable(time_step);
 
 	for (int i = 0; i < NUMBER_OF_CAMERAS; ++i)
 	{
@@ -88,13 +90,33 @@ int main(int argc, char** argv) {
 		motors[i] = robot->getMotor(motor_names[i]);
 	}
 
-	//while (true)
-	//{
-	//	//move_forward(1.0);
-	//	//move_forward(1.0);
-	//	move_backward(1.0);
-	//	//move_backward(1.0);
-	//}
+	bool isNeutral = true;
+
+	while (robot->step(time_step) != -1)
+	{
+		int key = keyboard->getKey();
+		if (key == keyboard->UP)
+		{
+			move_forward(1.0);
+			isNeutral = false;
+		}
+		else if (key == keyboard->DOWN)
+		{
+			move_backward(1.0);
+			isNeutral = false;
+		}
+		else
+		{
+			if (!isNeutral)
+			{
+				stand_up(1.0);
+				isNeutral = true;
+			}
+		}
+		//move_forward(1.0);
+		//move_forward(1.0);
+		//move_backward(1.0);
+	}
 	/*	lie_down(4.0);
 		stand_up(4.0);
 		sit_down(4.0);
@@ -125,7 +147,8 @@ int main(int argc, char** argv) {
 
 
 		// Enter here exit cleanup code.
-
+	keyboard->disable();
+	delete keyboard;
 	delete robot;
 	return 0;
 }
@@ -237,12 +260,24 @@ void move_backward(double duration)
 
 void turn_left(double duration)
 {
-	const double motors_target_pos[NUMBER_OF_JOINTS] = {
-		0.25, 0.25, 0.0,   // Front left leg
+	const double motors_target_pos1[NUMBER_OF_JOINTS] = {
+		0.5, 0.25, 0.0,   // Front left leg
 		0,  0.0, 0.0,   // Front right leg
 		0, 0.0, 0.0,   // Rear left leg
-		0.25,  0.25, 0.0 };  // Rear right leg
-	movement_decomposition(motors_target_pos, duration);
+		0.5,  0.25, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos1, duration * 0.33);
+	const double motors_target_pos2[NUMBER_OF_JOINTS] = {
+		0.00, 0.0, 0.0,   // Front left leg
+		0,  0.0, 0.0,   // Front right leg
+		0, 0.0, 0.0,   // Rear left leg
+		0.0,  0.0, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos2, duration * 0.33);
+	const double motors_target_pos3[NUMBER_OF_JOINTS] = {
+		0, 0, 0.0,   // Front left leg
+		0.5,  0.25, 0.0,   // Front right leg
+		0.5, 0.25, 0.0,   // Rear left leg
+		0,  0, 0.0 };  // Rear right leg
+	movement_decomposition(motors_target_pos3, duration * 0.33);
 }
 
 void turn_right(double duration)

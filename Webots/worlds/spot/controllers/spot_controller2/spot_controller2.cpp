@@ -76,10 +76,10 @@ const double gait_phase_shift[7][4] = {
   {0, 0, 0, 0}           // pronk
 };
 
-const int gait_setup[4][2] = { {FRONT_LEFT_SHOULDER_ABUCTION, FRONT_LEFT_ELBOW},
-							{FRONT_RIGHT_SHOULDER_ABUCTION, FRONT_RIGHT_ELBOW},
-							{REAR_RIGHT_SHOULDER_ABUCTION, REAR_RIGHT_ELBOW},
-							{REAR_LEFT_SHOULDER_ABUCTION, REAR_LEFT_ELBOW} };
+const int gait_setup[4][2] = { {FRONT_LEFT_SHOULDER_ROTATION, FRONT_LEFT_ELBOW},
+							{FRONT_RIGHT_SHOULDER_ROTATION, FRONT_RIGHT_ELBOW},
+							{REAR_RIGHT_SHOULDER_ROTATION, REAR_RIGHT_ELBOW},
+							{REAR_LEFT_SHOULDER_ROTATION, REAR_LEFT_ELBOW} };
 
 
 static void movement_decomposition(const double* target, double duration);
@@ -370,7 +370,7 @@ void interact_walk()
 	int gait_type = 0, i = 0;
 	int key = -1;
 
-	bool backward = false;
+	bool backward = true;
 
 	//parameters for stride length
 	double strideLengthForward = 1, strideLengthMin = 0, strideLengthMax = 1;
@@ -423,11 +423,11 @@ void interact_walk()
 				}
 				break;
 			case 'F':
-				backward = false;
+				backward = true;
 				freq = 1.5;
 				break;
 			case 'B':
-				backward = true;
+				backward = false;
 				freq = 0.9;
 				break;
 			case 'S':
@@ -461,7 +461,7 @@ void interact_walk()
 			computeWalkingPosition(motorPositions, static_cast<double>(step_count) * (step_duration / 1000.0), freq, gait_type, legId,
 				stride_length_factor[legId], backward);
 			double motorPosition1 = map(motorPositions[0], -M_PI, M_PI, -0.6, 0.5);
-			double motorPosition2 = map(motorPositions[0], -M_PI, M_PI, -0.45, 1.6);
+			double motorPosition2 = map(motorPositions[1], -M_PI, M_PI, -0.45, 0.5);
 			motors[gait_setup[legId][0]]->setPosition(motorPosition1);
 			motors[gait_setup[legId][1]]->setPosition(motorPosition2);
 		}

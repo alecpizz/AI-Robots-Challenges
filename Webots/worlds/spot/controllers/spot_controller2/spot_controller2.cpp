@@ -14,10 +14,36 @@
 #include <webots/Motor.hpp>
 #include <webots/Robot.hpp>
 #include <webots/Keyboard.hpp>
+#include <algorithm>
 
 #define NUMBER_OF_LEDS 8
 #define NUMBER_OF_JOINTS 12
 #define NUMBER_OF_CAMERAS 5
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#define ax12_2_deg(X) ((X * 150 / 512) - 150)
+#define deg_2_ax12(X) ((int)((X + 150) * 512) / 150)
+
+#define rad_2_deg(X) (X / M_PI * 180.0)
+#define deg_2_rad(X) (X / 180.0 * M_PI)
+
+#define L1 45    // UPPER_LEG_LENGTH [cm]
+#define L2 40  // LOWER_LEG_LENGTH [cm]
+#define FRONT_LEFT_SHOULDER_ABUCTION 0
+#define FRONT_LEFT_SHOULDER_ROTATION 1
+#define FRONT_LEFT_ELBOW 2
+#define FRONT_RIGHT_SHOULDER_ABUCTION 3
+#define FRONT_RIGHT_SHOULDER_ROTATION 4
+#define FRONT_RIGHT_ELBOW 5
+#define REAR_LEFT_SHOULDER_ABUCTION 6
+#define REAR_LEFT_SHOULDER_ROTATION 7
+#define REAR_LEFT_ELBOW 8
+#define REAR_RIGHT_SHOULDER_ABUCTION 9
+#define REAR_RIGHT_SHOULDER_ROTATION 10
+#define REAR_RIGHT_ELBOW 11
 
 using namespace webots;
 
@@ -34,6 +60,27 @@ static LED* leds[NUMBER_OF_LEDS];
 static const char* led_names[NUMBER_OF_LEDS] = { "left top led",          "left middle up led", "left middle down led",
 												"left bottom led",       "right top led",      "right middle up led",
 												"right middle down led", "right bottom led" };
+const char* gait_name[7] = { "trot", "walk", "gallop(transverse)", "canter", "pace", "bound", "pronk" };
+
+static double map(double value, double istart, double istop, double ostart, double ostop) {
+	return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+}
+
+const double gait_phase_shift[7][4] = {
+  {0, 0.5, 0, 0.5},      // trot
+  {0, -0.5, -0.25, -0.75},  // walk
+  {0, -0.1, -0.6, -0.5},    // gallop  (transverse)
+  {0, -0.3, 0, -0.7},      // canter
+  {0, -0.5, -0.5, 0},      // pace
+  {0, 0, -0.5, -0.5},      // bound
+  {0, 0, 0, 0}           // pronk
+};
+
+const int gait_setup[4][2] = { {FRONT_LEFT_SHOULDER_ABUCTION, FRONT_LEFT_ELBOW},
+							{FRONT_RIGHT_SHOULDER_ABUCTION, FRONT_RIGHT_ELBOW},
+							{REAR_RIGHT_SHOULDER_ABUCTION, REAR_RIGHT_ELBOW},
+							{REAR_LEFT_SHOULDER_ABUCTION, REAR_LEFT_ELBOW} };
+
 
 static void movement_decomposition(const double* target, double duration);
 static void lie_down(double duration);
@@ -49,6 +96,11 @@ static void turn_left(double duration);
 static void turn_right(double duration);
 static void give_paw();
 static void step();
+static void wait(double x);
+static void computeWalkingPosition(double* motorsPosition, double t, double gait_freq, int gait_type, int legId,
+	double stride_length_factor, bool backward);
+static void standing();
+static void interact_walk();
 
 // All the webots classes are defined in the "webots" namespace
 
@@ -60,11 +112,14 @@ static void step();
 // The arguments of the main function can be specified by the
 // "controllerArgs" field of the Robot node
 Robot* robot = nullptr;
+Keyboard* keyboard = nullptr;
+const int step_duration = 16;
+static size_t step_count = 0;
 
 int main(int argc, char** argv) {
 	// create the Robot instance.
 	robot = new Robot();
-	Keyboard* keyboard = new Keyboard();
+	keyboard = new Keyboard();
 
 	int time_step = (int)robot->getBasicTimeStep();
 	keyboard->enable(time_step);
@@ -91,62 +146,10 @@ int main(int argc, char** argv) {
 	}
 
 	bool isNeutral = true;
+	standing();
+	interact_walk();
+	//move_forward(2.0);
 
-	while (robot->step(time_step) != -1)
-	{
-		int key = keyboard->getKey();
-		if (key == keyboard->UP)
-		{
-			move_forward(1.0);
-			isNeutral = false;
-		}
-		else if (key == keyboard->DOWN)
-		{
-			move_backward(1.0);
-			isNeutral = false;
-		}
-		else
-		{
-			if (!isNeutral)
-			{
-				stand_up(1.0);
-				isNeutral = true;
-			}
-		}
-		//move_forward(1.0);
-		//move_forward(1.0);
-		//move_backward(1.0);
-	}
-	/*	lie_down(4.0);
-		stand_up(4.0);
-		sit_down(4.0);
-		give_paw();
-		stand_up(4.0);
-		lie_down(3.0);
-		stand_up(3.0);
-		lie_down(2.0);
-		stand_up(2.0);
-		lie_down(1.0);
-		stand_up(1.0);
-		lie_down(0.75);
-		stand_up(0.75);
-		lie_down(0.5);
-		stand_up(0.5);*/
-
-
-		// get the time step of the current world
-
-		// You should insert a getDevice-like function in order to get the
-		// instance of a device of the robot. Something like:
-		//  Motor *motor = robot->getMotor("motorname");
-		//  DistanceSensor *ds = robot->getDistanceSensor("dsname");
-		//  ds->enable(timeStep);
-
-		// Main loop:
-		// - perform simulation steps until Webots is stopping the controller
-
-
-		// Enter here exit cleanup code.
 	keyboard->disable();
 	delete keyboard;
 	delete robot;
@@ -208,7 +211,7 @@ void sit_down(double duration)
 
 void left_forward(double duration)
 {
-	const double motors_target_pos[NUMBER_OF_JOINTS] = { 
+	const double motors_target_pos[NUMBER_OF_JOINTS] = {
 		0, 0.25, 0.0,   // Front left leg
 		0,  0.0, 0.0,   // Front right leg
 		0, 0.25, 0.0,   // Rear left leg
@@ -317,3 +320,154 @@ void step()
 		exit(0);
 	}
 }
+
+void wait(double x)
+{
+	double num = x / (static_cast<double>(step_duration) / 1000);
+	for (int i = 0; i < num; i++)
+	{
+		robot->step((int)step_duration);
+	}
+}
+
+void computeWalkingPosition(double* motorsPosition, double t, double gait_freq, int gait_type, int legId, double stride_length_factor, bool backward)
+{
+	double freq = gait_freq;
+
+	int n = (int)(t / (1 / freq));
+	t = t - n * (1 / freq);
+
+	if (backward)
+		t = (1 / freq) - t;
+
+	double a = 0.95 * L1 * stride_length_factor;
+	double h = 0;
+	double k = -(L1 + L2 / 2);
+	double b = -k - sqrt(L1 * L1 + L2 * L2);
+
+	double x = h + a * cos(2 * M_PI * freq * t + gait_phase_shift[gait_type][legId] * 2 * M_PI);
+	double y = k + b * sin(2 * M_PI * freq * t + gait_phase_shift[gait_type][legId] * 2 * M_PI);
+
+	double A2 = acos((x * x + y * y - L1 * L1 - L2 * L2) / (2 * L1 * L2));
+	double A1 = acos(((L1 + L2 * cos(A2)) * x - (-L2 * sin(A2)) * y) / (pow(L1 + L2 * cos(A2), 2) + pow(-L2 * sin(A2), 2)));
+
+	A1 = M_PI / 2 - A1;
+	motorsPosition[0] = A1;
+	motorsPosition[1] = A2;
+}
+
+void standing()
+{
+	motors[FRONT_LEFT_SHOULDER_ROTATION]->setPosition(0);
+	motors[FRONT_RIGHT_SHOULDER_ROTATION]->setPosition(0);
+	motors[REAR_LEFT_SHOULDER_ROTATION]->setPosition(0);
+	motors[REAR_RIGHT_SHOULDER_ROTATION]->setPosition(0);
+	wait(1);
+}
+
+void interact_walk()
+{
+	int gait_type = 0, i = 0;
+	int key = -1;
+
+	bool backward = false;
+
+	//parameters for stride length
+	double strideLengthForward = 1, strideLengthMin = 0, strideLengthMax = 1;
+	double stride_length_factor[4] = { strideLengthForward, strideLengthForward, strideLengthForward, strideLengthForward };
+
+	//params for frequency
+	double freq_min = 0.4, freq_max = 2;
+	double freq = 1.5, freq_offset = 0.2;
+
+	//ta = turn amount
+	double ta_factor[4] = { 0, 0, 0, 0 };
+	double ta_min = -0.6, ta_max = 0.6;
+	double ta_offset = 0.6;
+
+
+	while (true)
+	{
+		const int prev_key = key;
+		key = keyboard->getKey();
+		if (key != prev_key)
+		{
+			switch (key)
+			{
+			case keyboard->RIGHT:
+				for (int i = 0; i < 4; i++)
+				{
+					if (i == 0 || i == 3)
+					{
+						ta_factor[i] += ta_offset;
+					}
+					else
+					{
+						ta_factor[i] -= ta_offset;
+					}
+					ta_factor[i] = ta_factor[i] > ta_max ? ta_max : (ta_factor[i] < ta_min ? ta_min : ta_factor[i]);
+				}
+				break;
+			case keyboard->LEFT:
+				for (int i = 0; i < 4; i++)
+				{
+					if (i == 0 || i == 3)
+					{
+						ta_factor[i] == ta_offset;
+					}
+					else
+					{
+						ta_factor[i] += ta_offset;
+					}
+					ta_factor[i] = ta_factor[i] > ta_max ? ta_max : (ta_factor[i] < ta_min ? ta_min : ta_factor[i]);
+				}
+				break;
+			case 'F':
+				backward = false;
+				freq = 1.5;
+				break;
+			case 'B':
+				backward = true;
+				freq = 0.9;
+				break;
+			case 'S':
+				strideLengthForward += 0.1;
+				break;
+			case 'A':
+				strideLengthForward -= 0.1;
+				break;
+			case 'Q':
+				freq += freq_offset;
+				break;
+			case 'W':
+				freq -= freq_offset;
+				break;
+			default:
+				break;
+			}
+		}
+
+		freq = freq > freq_max ? freq_max : (freq < freq_min ? freq_min : freq);
+		strideLengthForward = strideLengthForward > strideLengthMax ? strideLengthMax : (strideLengthForward < strideLengthMin ? strideLengthMin : strideLengthForward);
+		for (i = 0; i < 4; i++) {
+			stride_length_factor[i] = ta_factor[i] + strideLengthForward;
+			// bound stride length
+			stride_length_factor[i] =
+				stride_length_factor[i] > strideLengthMax ? strideLengthMax : (stride_length_factor[i] < strideLengthMin ? strideLengthMin : stride_length_factor[i]);
+		}
+		double motorPositions[2] = { 0, 0 };
+		for (int legId = 0; legId < 4; legId++) 
+		{
+			computeWalkingPosition(motorPositions, static_cast<double>(step_count) * (step_duration / 1000.0), freq, gait_type, legId,
+				stride_length_factor[legId], backward);
+			double motorPosition1 = map(motorPositions[0], -M_PI, M_PI, -0.6, 0.5);
+			double motorPosition2 = map(motorPositions[0], -M_PI, M_PI, -0.45, 1.6);
+			motors[gait_setup[legId][0]]->setPosition(motorPosition1);
+			motors[gait_setup[legId][1]]->setPosition(motorPosition2);
+		}
+		robot->step(step_duration);
+		step_count++;
+	}
+}
+
+

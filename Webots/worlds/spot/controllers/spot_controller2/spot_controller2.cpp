@@ -15,6 +15,7 @@
 #include <webots/Robot.hpp>
 #include <webots/Keyboard.hpp>
 #include <algorithm>
+#include <iostream>
 
 #define NUMBER_OF_LEDS 8
 #define NUMBER_OF_JOINTS 12
@@ -144,6 +145,16 @@ int main(int argc, char** argv) {
 	{
 		motors[i] = robot->getMotor(motor_names[i]);
 	}
+
+	std::cout << "Controls: \n"
+		<< "RIGHT - Turn Right \n"
+		<< "LEFT - TURN Left \n"
+		<< "F - Move Forwards\n"
+		<< "B - Move Backwards\n"
+		<< "S - Increase Stride Length Factor (0-1)\n"
+		<< "A - Decrease Stride Length Factor (0-1) \n"
+		<< "Q - Increase Step Frequency \n"
+		<< "W - Decrease Step Frequency \n";
 
 	bool isNeutral = true;
 	standing();

@@ -154,7 +154,13 @@
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\Supervisor.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\TouchSensor.cpp" />
     <ClCompile Include="$(WEBOTS_HOME)\src\controller\cpp\VacuumGripper.cpp" />
+    <ClCompile Include="LegKinematics.cpp" />
+    <ClCompile Include="SpotKinematics.cpp" />
     <ClCompile Include="spot_controller2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LegKinematics.h" />
+    <ClInclude Include="SpotKinematics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

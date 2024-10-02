@@ -8,16 +8,16 @@ EXTERNPROTO "../protos/Spot.proto"
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.19206759068622373 0.1853191824964007 0.9637255009632437 2.158579291507813
-  position 1.489212374454513 -2.2910734629783187 1.2402610759318542
+  orientation -0.12138121117750633 0.23898800112643634 0.9634061121306382 1.6092332671508993
+  position 0.16016118006189245 -9.027934943348889 3.264976854054935
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 3 3
+  floorSize 8 8
 }
 Spot {
-  controller "spot_controller2"
+  controller "spot_controller3"
 }

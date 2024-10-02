@@ -14,6 +14,7 @@
 #include <webots/Motor.hpp>
 #include <webots/Robot.hpp>
 #include <webots/Keyboard.hpp>
+#include "LegKinematics.h"
 #include <algorithm>
 #include <iostream>
 
@@ -346,10 +347,10 @@ void computeWalkingPosition(double* motorsPosition, double t, double gait_freq, 
 	double freq = gait_freq;
 
 	int n = (int)(t / (1 / freq));
-	t = t - n * (1 / freq);
+	t = (1 / freq) - t;
 
 	if (backward)
-		t = (1 / freq) - t;
+		t = t - n * (1 / freq);
 
 	double a = 0.95 * L1 * stride_length_factor;
 	double h = 0;
@@ -381,7 +382,7 @@ void interact_walk()
 	int gait_type = 0, i = 0;
 	int key = -1;
 
-	bool backward = true;
+	bool backward = false;
 
 	//parameters for stride length
 	double strideLengthForward = 1, strideLengthMin = 0, strideLengthMax = 1;
@@ -434,11 +435,11 @@ void interact_walk()
 				}
 				break;
 			case 'F':
-				backward = true;
+				backward = false;
 				freq = 1.5;
 				break;
 			case 'B':
-				backward = false;
+				backward = true;
 				freq = 0.9;
 				break;
 			case 'S':

@@ -1,0 +1,167 @@
+"""spot_controller3 controller."""
+import copy
+
+import numpy as np
+
+from Bezier import BezierGait
+# You may need to import some classes of the controller module. Ex:
+#  from controller import Robot, Motor, DistanceSensor
+from controller import Robot
+from controller import Supervisor
+from SpotKinematics import SpotModel
+
+# create the Robot instance.
+robot = Robot()
+# get the time step of the current world.
+timestep = int(robot.getBasicTimeStep())
+
+motor_names = [
+            "front left shoulder abduction motor",
+            "front left shoulder rotation motor",
+            "front left elbow motor",
+            "front right shoulder abduction motor",
+            "front right shoulder rotation motor",
+            "front right elbow motor",
+            "rear left shoulder abduction motor",
+            "rear left shoulder rotation motor",
+            "rear left elbow motor",
+            "rear right shoulder abduction motor",
+            "rear right shoulder rotation motor",
+            "rear right elbow motor",
+        ]
+
+motors = []
+
+for motor_name in motor_names:
+    motors.append(robot.getDevice(motor_name))
+
+spot = SpotModel()
+T_bf0 = spot.WorldToFoot
+T_bf = copy.deepcopy(T_bf0);
+bzg = BezierGait(dt=0.032)
+
+#bezier gait control inputs
+xd = 0.0
+yd = 0.0
+zd = 0.0
+rolld = 0.0
+pitchd = 0.0
+yawd = 0.0
+StepLength = 0.0
+LateralFraction = 0.0
+YawRate = 0.0
+StepVelocity = 0.0
+ClearanceHeight = 0.0
+PenetrationDepth = 0.0
+SwingPeriod = 0.0
+YawControl = 0.0
+YawControlOn = False
+
+#spot states
+x_inst = 0.0
+y_inst = 0.0
+z_inst = 0.0
+roll_inst = 0.0
+pitch_inst = 0.0
+yaw_inst = 0.0
+search_index = -1
+
+
+n_steps_to_achieve_target = 0
+step_difference = [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+        ]
+m_target = []
+# You should insert a getDevice-like function in order to get the
+# instance of a device of the robot. Something like:
+#  motor = robot.getDevice('motorname')
+#  ds = robot.getDevice('dsname')
+#  ds.enable(timestep)
+
+def yaw_control():
+    """Yaw body controller"""
+    yaw_target = YawControl
+    thr = np.pi / 2
+    if (yaw_target > thr and yaw_inst < -thr) or (
+            yaw_inst > thr and yaw_target < -thr
+    ):
+        residual = (yaw_target - yaw_inst) * np.sign(
+            yaw_target - yaw_inst
+        ) - 2 * np.pi
+        yawrate_d = 2.0 * np.sqrt(abs(residual)) * np.sign(residual)
+    else:
+        residual = yaw_target - yaw_inst
+        yawrate_d = 4.0 * np.sqrt(abs(residual)) * np.sign(residual)
+    return yawrate_d
+
+def spot_inverse_control():
+    pos = np.array([xd, yd, zd])
+    orn = np.array([rolld, pitchd, yawd])
+    # yaw controller
+    if YawControlOn == 1.0:
+        YawRate_desired = yaw_control()
+    else:
+        YawRate_desired = YawRate
+    # Update Swing Period
+    bzg.Tswing = SwingPeriod
+    contacts = [
+        front_left_lower_leg_contact,
+        front_right_lower_leg_contact,
+        rear_left_lower_leg_contact,
+        rear_right_lower_leg_contact,
+    ]
+    # Get Desired Foot Poses
+    T_bf = bzg.GenerateTrajectory(
+        StepLength,
+        LateralFraction,
+        YawRate_desired,
+        StepVelocity,
+        T_bf0,
+        T_bf,
+        ClearanceHeight,
+        PenetrationDepth,
+        contacts,
+    )
+    joint_angles = -spot.IK(orn, pos, T_bf)
+    target = [
+        joint_angles[0][0],
+        joint_angles[0][1],
+        joint_angles[0][2],
+        joint_angles[1][0],
+        joint_angles[1][1],
+        joint_angles[1][2],
+        joint_angles[2][0],
+        joint_angles[2][1],
+        joint_angles[2][2],
+        joint_angles[3][0],
+        joint_angles[3][1],
+        joint_angles[3][2],
+    ]
+    self.__talker(target)
+
+
+# Main loop:
+# - perform simulation steps until Webots is stopping the controller
+while robot.step(timestep) != -1:
+    # Read the sensors:
+    # Enter here functions to read sensor data, like:
+    #  val = ds.getValue()
+
+    # Process sensor data here.
+
+    # Enter here functions to send actuator commands, like:
+    #  motor.setPosition(10.0)
+    pass
+
+# Enter here exit cleanup code.

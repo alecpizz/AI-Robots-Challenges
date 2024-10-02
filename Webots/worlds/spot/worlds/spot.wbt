@@ -20,4 +20,9 @@ RectangleArena {
 }
 Spot {
   controller "spot_controller3"
+  controllerArgs [
+    "0.0"
+    "0.0"
+    "0.0"
+  ]
 }

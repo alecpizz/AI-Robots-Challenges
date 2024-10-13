@@ -3,12 +3,55 @@ import copy
 
 import numpy as np
 import sys
+
 from Bezier import BezierGait
 # You may need to import some classes of the controller module. Ex:
 #  from controller import Robot, Motor, DistanceSensor
-from controller import Robot, Motor
+from controller import Robot, Motor, keyboard
 from controller import Supervisor
 from SpotKinematics import SpotModel
+import time
+from pynput.keyboard import Key, Listener
+
+moveBindings = {
+    'i': (1, 0, 0, 0),
+    'j': (0.1, 0, 0, 1),
+    'l': (0.1, 0, 0, -1),
+    ',': (-1, 0, 0, 0),
+}
+
+speedBindings = {
+    'q': (1.1, 1.1),
+    'z': (.9, .9),
+    'w': (1.1, 1),
+    'x': (.9, 1),
+    'e': (1, 1.1),
+    'c': (1, .9),
+}
+
+rollBindings = {
+    'a': 0.1,
+    's': -0.1,
+}
+
+pitchBindings = {
+    'd': 0.1,
+    'f': -0.1,
+}
+yawBindings = {
+    'g': 0.1,
+    'h': -0.1,
+}
+
+xyzBindings = {
+    '1': (0.01, 0, 0),
+    '2': (-0.01, 0, 0),
+    '3': (0, 0.01, 0),
+    '4': (0, -0.01, 0),
+    '5': (0, 0, 0.01),
+    '6': (0, 0, -0.01),
+}
+
 
 class SpotController():
 
@@ -60,7 +103,6 @@ class SpotController():
     SwingPeriod = 0.0
     YawControl = 0.0
     YawControlOn = False
-
     #spot states
     x_inst = 0.0
     y_inst = 0.0
@@ -162,14 +204,54 @@ class SpotController():
         self.apply_motor(target)
 
     def step(self):
-        return self.robot.step(self.timestep);
+        return self.robot.step(self.timestep)
+
+    def timer_ended(self):
+        speed = 1.0
+        turn = 0.5
+
+def on_press(key):
+    keych = key.char
+    if keych in moveBindings.keys():
+        pass
+    elif keych in speedBindings.keys():
+        pass
+    elif keych in rollBindings.keys():
+        pass
+    elif keych in pitchBindings.keys():
+        pass
+    elif keych in yawBindings.keys():
+        pass
+    elif keych in xyzBindings.keys():
+        pass
+    else:
+        pass
+    pass
+
+def on_release(key):
+    pass
 
 # Main loop:
 control = SpotController()
+current_time = time.time()
+prev_time = time.time()
+loopTimer = 0.0
+loopTime = 0.1
 
+listener = Listener(on_press=on_press, on_release=on_release)
+listener.start()
 # - perform simulation steps until Webots is stopping the controller
 while control.step() != -1:
     control.spot_inverse_control()
+    current_time = time.time()
+    dt = current_time - prev_time
+    prev_time = current_time
+
+    if loopTimer < loopTime:
+        loopTimer += dt
+    else:
+        loopTime = 0.0
+        control.timer_ended()
     # Read the sensors:
     # Enter here functions to read sensor data, like:
     #  val = ds.getValue()
@@ -179,5 +261,5 @@ while control.step() != -1:
     # Enter here functions to send actuator commands, like:
     #  motor.setPosition(10.0)
     pass
-
+listener.stop()
 # Enter here exit cleanup code.

@@ -14,7 +14,7 @@ import time
 from pynput.keyboard import Key, Listener
 
 moveBindings = {
-    'i': (1, 0, 0, 0),
+    'i': (0.5, 0, 0, 0),
     'j': (0.1, 0, 0, 1),
     'l': (0.1, 0, 0, -1),
     ',': (-1, 0, 0, 0),
@@ -82,9 +82,19 @@ class SpotController():
     for motor_name in motor_names:
         motors.append(robot.getDevice(motor_name))
 
+    touch_fl = robot.getDevice("front left touch sensor")
+    touch_fr = robot.getDevice("front right touch sensor")
+    touch_rl = robot.getDevice("rear left touch sensor")
+    touch_rr = robot.getDevice("rear right touch sensor")
+
+    touch_fl.enable(timestep)
+    touch_fr.enable(timestep)
+    touch_rl.enable(timestep)
+    touch_rr.enable(timestep)
+
     spot = SpotModel()
     T_bf0 = spot.WorldToFoot
-    T_bf = copy.deepcopy(T_bf0);
+    T_bf = copy.deepcopy(T_bf0)
     bzg = BezierGait(dt=0.032)
 
     #bezier gait control inputs
@@ -111,6 +121,11 @@ class SpotController():
     pitch_inst = 0.0
     yaw_inst = 0.0
     search_index = -1
+
+    front_left_lower_leg_contact = 1
+    front_right_lower_leg_contact = 1
+    rear_left_lower_leg_contact = 1
+    rear_right_lower_leg_contact = 1
 
 
     n_steps_to_achieve_target = 0
@@ -168,12 +183,12 @@ class SpotController():
             YawRate_desired = self.YawRate
         # Update Swing Period
         self.bzg.Tswing = self.SwingPeriod
-        # contacts = [
-        #     front_left_lower_leg_contact,
-        #     front_right_lower_leg_contact,
-        #     rear_left_lower_leg_contact,
-        #     rear_right_lower_leg_contact,
-        # ]
+        contacts = [
+            self.front_left_lower_leg_contact,
+            self.front_right_lower_leg_contact,
+            self.rear_left_lower_leg_contact,
+            self.rear_right_lower_leg_contact,
+        ]
         # Get Desired Foot Poses
         self.T_bf = self.bzg.GenerateTrajectory(
             self.StepLength,
@@ -184,7 +199,7 @@ class SpotController():
             self.T_bf,
             self.ClearanceHeight,
             self.PenetrationDepth,
-
+            contacts,
         )
         joint_angles = -self.spot.IK(orn, pos, self.T_bf)
         target = [
@@ -213,6 +228,7 @@ class SpotController():
 def on_press(key):
     keych = key.char
     if keych in moveBindings.keys():
+        control.xd = moveBindings[keych][0]
         pass
     elif keych in speedBindings.keys():
         pass
@@ -242,16 +258,15 @@ listener = Listener(on_press=on_press, on_release=on_release)
 listener.start()
 # - perform simulation steps until Webots is stopping the controller
 while control.step() != -1:
-    control.spot_inverse_control()
-    current_time = time.time()
-    dt = current_time - prev_time
-    prev_time = current_time
 
-    if loopTimer < loopTime:
-        loopTimer += dt
-    else:
-        loopTime = 0.0
-        control.timer_ended()
+    control.front_left_lower_leg_contact = control.touch_fl.getValue()
+    control.front_right_lower_leg_contact = control.touch_fr.getValue()
+    control.rear_left_lower_leg_contact = control.touch_rl.getValue()
+    control.rear_right_lower_leg_contact = control.touch_rr.getValue()
+
+    control.StepLength = 0.5
+    control.StepVelocity = 0.01
+    control.spot_inverse_control()
     # Read the sensors:
     # Enter here functions to read sensor data, like:
     #  val = ds.getValue()

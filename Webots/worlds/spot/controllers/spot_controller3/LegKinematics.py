@@ -1,5 +1,8 @@
 import numpy as np
 
+def clamp(a, min_val, max_val):
+    return max(min(a, max_val), min_val)
+
 class LegKinematics:
     def __init__(self,
         leg_type="RIGHT",
@@ -74,7 +77,7 @@ class LegKinematics:
             self.wrist_length * np.sin(wrist_angle),
             self.elbow_length + self.wrist_length * np.cos(wrist_angle),
         )
-        joint_angles = np.array([-shoulder_angle, elbow_angle, wrist_angle])
+        joint_angles = np.array([clamp(-shoulder_angle, self.shoulder_lim[0], self.shoulder_lim[1]), elbow_angle, wrist_angle])
         return joint_angles
 
     def LeftIK(self, x, y, z, D):
@@ -96,5 +99,5 @@ class LegKinematics:
             self.wrist_length * np.sin(wrist_angle),
             self.elbow_length + self.wrist_length * np.cos(wrist_angle),
         )
-        joint_angles = np.array([-shoulder_angle, elbow_angle, wrist_angle])
+        joint_angles = np.array([clamp(-shoulder_angle, self.shoulder_lim[0], self.shoulder_lim[1]), elbow_angle, wrist_angle])
         return joint_angles

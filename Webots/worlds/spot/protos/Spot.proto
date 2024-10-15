@@ -10,7 +10,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/MattePaint.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/PerforatedMetal.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/BrushedAluminium.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/boston_dynamics/spot/protos/SpotLeg.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/MASKOR/webots_ros2_spot/refs/heads/main/protos/SpotLeg.proto"
 
 PROTO Spot [
   field SFVec3f     translation      0 0 0.624                 # Is `Pose.translation`.

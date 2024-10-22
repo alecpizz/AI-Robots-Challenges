@@ -702,6 +702,7 @@ PROTO Spot [
         rotation 0.577350 -0.577354 -0.577346 2.094389
         name "front left"
         left TRUE
+      
       }
       DEF FRONT_RIGHT_LEG SpotLeg {
         translation 0.3635 0 0.0118
@@ -718,6 +719,7 @@ PROTO Spot [
         translation -0.3084 0 0.0117
         rotation 0.577350 -0.577354 -0.577346 2.094389
         name "rear right"
+        
       }
       Pose {
         translation 0.256 0 0.1118

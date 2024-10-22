@@ -19,10 +19,13 @@ RectangleArena {
   floorSize 8 8
 }
 Spot {
-  controller "spot_controller3"
+  controller "spot_controller4"
   controllerArgs [
     "0.0"
     "0.0"
     "0.0"
   ]
+  supervisor TRUE
+}
+DEF TARGET Transform {
 }
